@@ -1,5 +1,8 @@
-const fs = require('fs');
 const express = require('express');
+
+const formidable = require('formidable');
+const fs = require('fs');
+
 const path = require('path');
 let urlLogger = (req, res, next) => {
     let url = req.url;
@@ -25,5 +28,19 @@ let app = express();
 app.use(express.static(path.join(__dirname, '../public')));
 
 app.use(urlLogger);
+
+app.post('/request_logs.txt', function(req, res){
+    const form = new formidable.IncomingForm();
+    form.parse(req, function(err, fields, files) {
+    if (err != null) {
+      console.log(err)
+      return res.status(400).json({ message: err.message });
+    }
+
+    const [firstFileName] = Object.keys(files);
+
+    res.json({ filename: firstFileName });
+  });
+});
 
 app.listen(3000);
